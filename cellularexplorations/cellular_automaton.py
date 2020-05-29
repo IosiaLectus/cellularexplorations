@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 
 # import useful packages
-import random
+import random, math
 
 
 
-def lookup_table_from_wolfram_code(num_nbhd_states, wolfram_code):
+def lookup_table_from_wolfram_code(wolfram_code, nbhd_size, num_states):
     '''
     Takes a Wolfram code, and converts it into a list lookup_table, such that if the state of a cell's neighborhood is encoded by the integer x, then lookup_table[x] gives the updated state of the cell. 
     '''
-    # Place holder:
-    return [0 for i in range(num_nbhd_states)]
+    num_nbhd_states = num_states**nbhd_size
+    # The lookup table 
+    lookup_table =  [0 for i in range(num_nbhd_states)]
+    index = 0
+    while wolfram_code > 0 and index<num_nbhd_states:
+        lookup_table[index] = wolfram_code % num_states
+        wolfram_code = math.floor(wolfram_code/num_states)
+        index += 1
+    return lookup_table
 
 class CellularAutomaton1D:
     '''
@@ -41,29 +48,24 @@ class CellularAutomaton1D:
         assert wolfram_code>=0 and wolfram_code<=self.maximum_wolfram_code, 'Invalid Wolfram code.'
         # self.rule_dict is a dictionary which gives a lookup table for every active wolfram code.
         self.rule_dict = {}
-        self.rule_dict[wolfram_code] = lookup_table_from_wolfram_code(self.num_nbhd_states, wolfram_code)
+        self.rule_dict[wolfram_code] = lookup_table_from_wolfram_code(wolfram_code, self.nbhd_size, self.num_states)
         # self.rule_grid stores the Wolfram code which applies to each individual cell. This allows one to partition the grid into regions governed by different rules, which could lead to interface effects.
         self.rule_grid = [wolfram_code for i in range(self.grid_width)]
 
-    def lookup_table_from_wolfram_code(self, wolfram_code):
-        '''
-        Takes a Wolfram code, and converts it into a list lookup_table, such that if the state of a cell's neighborhood is encoded by the integer x, then lookup_table[x] gives the updated state of the cell. 
-        '''
-        # Place holder:
-        return [0 for i in range(self.num_nbhd_states)]
 
     def update_rule_global(self, wolfram_code):
         '''
         Updates the rule globally base on 'wolfram_code'.
         '''
-        self.rule_dict = {wolfram_code: lookup_table_from_wolfram_code(self.num_nbhd_states, wolfram_code)}
+        self.rule_dict = {}
+        self.rule_dict[wolfram_code] = lookup_table_from_wolfram_code(wolfram_code, self.nbhd_size, self.num_states)
         self.rule_grid = [wolfram_code for i in range(self.grid_width)]
 
     def update_rule_local(self, wolfram_code, index):
         '''
         Updates the rule of a single cell whose index is given by 'index'.
         '''
-        self.rule_dict.update({wolfram_code, lookup_table_from_wolram_code(self.num_nbhd_states, wolfram_code)})
+        self.rule_dict[wolfram_code] = lookup_table_from_wolfram_code(wolfram_code, self.nbhd_size, self.num_states)
         self.rule_grid[index] = wolfram_code
 
     def set_state_local(self, index, state):
@@ -109,7 +111,7 @@ class CellularAutomatonHex:
 
 def main():
     print("Hello world\n")
-    aut = CellularAutomaton1D(20,32)
+    aut = CellularAutomaton1D(20,30)
     aut.set_state_local(12,1)
     print(aut.grid)
     for i in range(30):
