@@ -26,7 +26,7 @@ class CellularAutomaton1D:
 
     def __init__(self, width, wolfram_code, neighborhood_radius=1, num_states=2, periodic=True):
         '''
-        Initializes a one dimensional cellular automaton on a line if width 'width'. The rule of the automaton is set by the Wolfram code specified in in wolfram_code. 'neighborhood_radius' sets the size of a neighborhood. For example, neighborhood_radius=1 results in nearest neighbor neighborhoods, and neighborhood_radius=2 results in neighborhoods that also include next nearest neighbors. 'num_states' defines the number of states a cell may take, the default being 2. 'periodic' determines whether the boundary conditions are periodic. If they are not periodic, the boundary condition will be that there exit two additional cells whose state is always zero. 
+        Initializes a one dimensional cellular automaton on a line of width 'width'. The rule of the automaton is set by the Wolfram code specified in in wolfram_code. 'neighborhood_radius' sets the size of a neighborhood. For example, neighborhood_radius=1 results in nearest neighbor neighborhoods, and neighborhood_radius=2 results in neighborhoods that also include next nearest neighbors. 'num_states' defines the number of states a cell may take, the default being 2. 'periodic' determines whether the boundary conditions are periodic. If they are not periodic, the boundary condition will be that there exit two additional cells whose state is always zero. 
         '''
         # The total number of states each cell can take
         self.num_states = num_states
@@ -37,7 +37,7 @@ class CellularAutomaton1D:
         self.num_nbhd_states = self.num_states**self.nbhd_size
         # The maximum wolfram code, which coincides with the number of unique local rules.
         self.maximum_wolfram_code = self.num_states**self.num_nbhd_states
-        self.is_periodic = False
+        self.is_periodic = periodic
         self.grid_width = width
         # self.grid will be a list which stores the state of each cell. If the boundary condition is aperiodic, we include a number of additional cells equal to the neighborhood radius. In that case the last 'self.nbhd_radius' number of cells will not evolve. 
         if self.is_periodic:
@@ -111,7 +111,7 @@ class CellularAutomatonHex:
 
 def main():
     print("Hello world\n")
-    aut = CellularAutomaton1D(20,30)
+    aut = CellularAutomaton1D(20,2)
     aut.set_state_local(12,1)
     print(aut.grid)
     for i in range(30):
