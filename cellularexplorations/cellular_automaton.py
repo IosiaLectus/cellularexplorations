@@ -65,12 +65,48 @@ class CellularAutomaton1D:
         '''
         Updates the rule of a single cell whose index is given by 'index'.
         '''
+        assert index<self.grid_width, 'Cell index out of range.'
         self.rule_dict[wolfram_code] = lookup_table_from_wolfram_code(wolfram_code, self.nbhd_size, self.num_states)
         self.rule_grid[index] = wolfram_code
 
+    def update_rule_interval(self, wolfram_code, front, back):
+        '''
+        Update the rule on an interval that goes from 'front' to 'back'. Note that the interval is inclusive of 'front' but exclusive of 'back'. Note also that the interval will wrap around the grid.
+        '''
+        for index in range(front, back):
+            self.update_rule_local(wolfram_code, index%self.grid_width)
+
+    def update_rule_skip(self, wolfram_code, front, skip):
+        '''
+        Update rule on every xth cell, where x is equal to 'skip'. This wraps also wraps around.
+        '''
+        num_skips = math.floor(self.grid_width/skip)
+        for index in range(num_skips):
+            self.update_rule_local(wolfram_code, index*skip%self.grid_width)
+
     def set_state_local(self, index, state):
+        '''
+        Set the state of a cell whose index is given by 'index'.
+        '''
         assert state>=0 and state<=self.num_states, 'Invalid state'
         self.grid[index] = state
+
+    def set_state_uniform_random(self):
+        '''
+        Randomly set the state of each state.
+        '''
+        for i in range(self.grid_width):
+            state = random.randint(0,self.num_states-1)
+            self.set_state_local(i, state)
+
+    def set_state_sparse_random(self, num_cells):
+        '''
+        Randomly choose 'num_cells' cells, and randomly set the state of these.
+        '''
+        for i in range(num_cells+1):
+            index = random.randint(0, self.grid_width-1)
+            state = random.randint(0, self.num_states-1)
+            self.set_state_local(index, state)
 
 
     def get_neighborhood_state(self, index):
@@ -112,7 +148,8 @@ class CellularAutomatonHex:
 def main():
     print("Hello world\n")
     aut = CellularAutomaton1D(20,2)
-    aut.set_state_local(12,1)
+    aut.update_rule_interval(30,0,10)
+    aut.set_state_sparse_random(3)
     print(aut.grid)
     for i in range(30):
         aut.step()
